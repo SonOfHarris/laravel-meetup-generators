@@ -1,0 +1,12 @@
+{
+    "require": {
+        "php": "^8.1",
+        "symfony/console": "^6.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "SonOfHarris\\Meetup\\Generators\\": "src/",
+            "SonOfHarris\\Meetup\\Generators\\Tests\\": "tests/"
+        }
+    }
+}

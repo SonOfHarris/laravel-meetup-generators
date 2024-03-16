@@ -24,20 +24,9 @@ class GenerateDataCommand extends Command
     {
         $length = $input->getOption('length');
 
-        $header = [
-            'first_name',
-            'last_name',
-            'username',
-            'email',
-            'yob',
-        ];
-
-        $faker = Factory::create();
-
-        $output->writeln(implode("\t", $header));
-
-        $generateData = function ($count) use ($faker) {
-            for ($i = 0; $i < $count; $i++) {
+        $generateData = function () {
+            $faker = Factory::create();
+            while(true) {
                 yield [
                     'first_name' => $faker->firstName(),
                     'last_name' => $faker->lastName(),
@@ -48,8 +37,23 @@ class GenerateDataCommand extends Command
             }
         };
 
-        foreach ($generateData($length) as $data) {
-            $output->writeln(implode("\t", $data));
+        $generateFrom = function ($generator, $length) {
+            $count = 0;
+            foreach ($generator() as $data) {
+                yield $data;
+                if (++$count >= $length) {
+                    break;
+                }
+            }
+        };
+
+        $header = true;
+        foreach ($generateFrom($generateData, $length) as $data) {
+            if ($header) {
+                fputcsv(STDOUT, array_keys($data), "\t");
+                $header = false;
+            }
+            fputcsv(STDOUT, $data, "\t");
         }
 
         return Command::SUCCESS;

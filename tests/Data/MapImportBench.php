@@ -2,17 +2,11 @@
 
 namespace SonOfHarris\Meetup\Generators\Tests\Data;
 
-use SonOfHarris\Meetup\Generators\Data\BasicImport;
 use SonOfHarris\Meetup\Generators\Model\User;
 
 class MapImportBench
 {
-    private $file = __DIR__ . '/../../data/users.txt';
-
-    private function source()
-    {
-        return new BasicImport($this->file);
-    }
+    use FromUserData;
 
     private function yieldTweak($source)
     {
@@ -60,7 +54,7 @@ class MapImportBench
     {        
         $users = $this->yieldUser(
             $this->yieldTweak(
-                $this->source()->asGenerator()
+                $this->basic()->asGenerator()
             )
         );
 
@@ -76,7 +70,7 @@ class MapImportBench
      */
     public function benchGeneratorSequential()
     {
-        $users = $this->source()->asGenerator();
+        $users = $this->basic()->asGenerator();
         $users = $this->yieldTweak($users);
         $users = $this->yieldUser($users);
 
@@ -94,7 +88,7 @@ class MapImportBench
     {
         $users = $this->mapUser(
             $this->mapTweak(
-                $this->source()->asArray()
+                $this->basic()->asArray()
             )
         );
 
@@ -110,7 +104,7 @@ class MapImportBench
      */
     public function benchArrayMapSequential()
     {
-        $users = $this->source()->asArray();
+        $users = $this->basic()->asArray();
         $users = $this->mapTweak($users);
         $users = $this->mapUser($users);
 
@@ -120,7 +114,7 @@ class MapImportBench
         }
     }
 
-        /**
+    /**
      * @Revs(10)
      * @Iterations(3)
      */
@@ -128,7 +122,7 @@ class MapImportBench
     {
         $users = $this->yieldUser(
             $this->yieldTweak(
-                $this->source()->asArray()
+                $this->basic()->asArray()
             )
         );
 
@@ -147,7 +141,7 @@ class MapImportBench
         $users = $this->mapUser(
             $this->mapTweak(
                 iterator_to_array(
-                    $this->source()->asGenerator()
+                    $this->basic()->asGenerator()
                 )
             )
         );

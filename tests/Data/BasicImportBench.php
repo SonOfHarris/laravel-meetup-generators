@@ -2,11 +2,9 @@
 
 namespace SonOfHarris\Meetup\Generators\Tests\Data;
 
-use SonOfHarris\Meetup\Generators\Data\BasicImport;
-
 class BasicImportBench
 {
-    private $file = __DIR__ . '/../../data/users.txt';
+    use FromUserData;
 
     /**
      * @Revs(10)
@@ -14,7 +12,7 @@ class BasicImportBench
      */
     public function benchArray()
     {
-        $source = new BasicImport($this->file);
+        $source = $this->basic();
         $count = 0;
         foreach ($source->asArray() as $row) {
             $count++;
@@ -27,7 +25,7 @@ class BasicImportBench
      */
     public function benchGenerator()
     {
-        $source = new BasicImport($this->file);
+        $source = $this->basic();
         $count = 0;
         foreach ($source->asGenerator() as $row) {
             $count++;
@@ -38,10 +36,10 @@ class BasicImportBench
      * @Revs(10)
      * @Iterations(3)
      */
-    public function benchGeneratorArray()
+    public function benchGeneratorToArray()
     {
-        $import = new BasicImport($this->file);
-        $data = iterator_to_array($import->asGenerator());
+        $source = $this->basic();
+        $data = iterator_to_array($source->asGenerator());
         $count = count($data);
     }
 }

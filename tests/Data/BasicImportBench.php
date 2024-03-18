@@ -14,9 +14,9 @@ class BasicImportBench
      */
     public function benchArray()
     {
-        $import = new BasicImport($this->file);
+        $source = new BasicImport($this->file);
         $count = 0;
-        foreach ($import->asArray() as $row) {
+        foreach ($source->asArray() as $row) {
             $count++;
         }
     }
@@ -27,9 +27,9 @@ class BasicImportBench
      */
     public function benchGenerator()
     {
-        $import = new BasicImport($this->file);
+        $source = new BasicImport($this->file);
         $count = 0;
-        foreach ($import->asGenerator() as $row) {
+        foreach ($source->asGenerator() as $row) {
             $count++;
         }
     }

@@ -2,10 +2,15 @@
 
 namespace SonOfHarris\Meetup\Generators\Data;
 
+use InvalidArgumentException;
+
 class BasicImport
 {
     public function __construct(private $file)
     {
+        if (!file_exists($file)) {
+            throw new InvalidArgumentException("File does not exist: {$file}");
+        }
     }
 
     public function asArray()
@@ -18,8 +23,9 @@ class BasicImport
                 $header = array_flip($line);
                 continue;
             }
+
             $row = [];
-            foreach ($header as $pos => $name) {
+            foreach ($header as $name => $pos) {
                 $row[$name] = @$line[$pos];
             }
             $data[] = $row;
@@ -37,8 +43,9 @@ class BasicImport
                 $header = array_flip($line);
                 continue;
             }
+
             $row = [];
-            foreach ($header as $pos => $name) {
+            foreach ($header as $name => $pos) {
                 $row[$name] = @$line[$pos];
             }
             yield $row;

@@ -22,3 +22,30 @@ foreach ($source(0, 10) as $row) {
         break;
     }
 }
+
+// INFO: Looping until end
+// DEBUG: Opened resource(70) of type (stream)
+// 0. Halle Bosco
+// 1. Caden Sawayn
+// ...
+// 9. Wallace Pacocha
+// DEBUG: Closing resource(70) of type (stream)
+
+// INFO: Looping half way
+// DEBUG: Opened resource(71) of type (stream)
+// 0. Halle Bosco
+// 1. Caden Sawayn
+// ...
+// 4. Mathias Howe
+// DEBUG: Closing resource(71) of type (stream)
+
+// Without try { ... } finally { ... }
+
+// INFO: Looping half way
+// DEBUG: Opened resource(71) of type (stream)
+// 0. Halle Bosco
+// 1. Caden Sawayn
+// ...
+// 4. Mathias Howe
+
+// The resource is not actively closed

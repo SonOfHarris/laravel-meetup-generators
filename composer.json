@@ -3,7 +3,8 @@
         "php": "^8.1",
         "symfony/console": "^6.4",
         "fakerphp/faker": "^1.23",
-        "phpbench/phpbench": "^1.2"
+        "phpbench/phpbench": "^1.2",
+        "symfony/process": "^6.4"
     },
     "autoload": {
         "psr-4": {

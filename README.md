@@ -20,7 +20,7 @@ php gen
 
 See notes in the presentation slides regarding what commands to run.
 
-### Benchmarks
+### Run Benchmark
 
 Uses the PhpBench tool to benchmark memory usage and processing time. Pass in the path to the file relative to the `tests` folder excluding the `Bench.php` suffix:
 
@@ -38,7 +38,7 @@ Generates random user data and outputs them as TSV:
 php gen generate-data --length=5000 > data/users.txt
 ```
 
-### Run Examples
+### Run Example
 
 Runs a PHP file within the `src/Examples` folder:
 

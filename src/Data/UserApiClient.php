@@ -11,6 +11,8 @@ class UserApiClient
 
     private int $defaultLength = 10;
 
+    private bool $debug = false;
+
     public function __construct()
     {
     }
@@ -25,7 +27,12 @@ class UserApiClient
         $this->defaultLength = $length;
     }
 
-    public function toCollection(Process $process): UserCollection
+    public function setDebug(bool $debug): void
+    {
+        $this->debug = $debug;
+    }
+
+    public function getCollection(Process $process): UserCollection
     {
         $output = $process->getOutput();
         return new UserCollection(
@@ -40,13 +47,17 @@ class UserApiClient
     {
         $process = $this->listAsync($start, $length);
         $process->wait();
-        return $this->toCollection($process);
+        return $this->getCollection($process);
     }
 
     public function listAsync(int $start = 0, int $length = null): Process
     {
         if ($length == null) {
             $length = $this->defaultLength;
+        }
+
+        if ($this->debug) {
+            echo "DEBUG: [api] user:list --start={$start} --length={$length} --delay={$this->delay}" . PHP_EOL;
         }
 
         $process = new Process(
@@ -65,92 +76,127 @@ class UserApiClient
 
     public function listMany(int $start = 0, int $end = null): Generator
     {
-        $pos = $start;
+        if ($this->debug) {
+            echo "DEBUG: [listMany] Start" . PHP_EOL;
+        }
+
+        $batchStart = $start;
         do {
-            $result = $this->list($pos, $this->defaultLength);
+            $batchEnd = $batchStart + $this->defaultLength - 1;
+            if ($end !== null && $batchEnd > $end) {
+                $batchEnd = $end;
+            }
+
+            $result = $this->list($batchStart, $batchEnd - $batchStart + 1);
             if ($end === null) {
                 $end = $result->getTotal();
             }
-            foreach ($result->asGenerator() as $user) {
-                yield $user;
-                $pos++;
-                if ($pos >= $end) {
-                    break;
-                }
-            }
-        } while ($pos < $end);
+
+            yield from $result->asGenerator();
+
+            $batchStart += count($result);
+        } while ($batchStart < $end);
+
+        if ($this->debug) {
+            echo "DEBUG: [listMany] End" . PHP_EOL;
+        }
     }
 
     public function listManyArray(int $start = 0, int $end = null): array
     {
+        if ($this->debug) {
+            echo "DEBUG: [listManyArray] Start" . PHP_EOL;
+        }
+
         $users = [];
-        $pos = $start;
+        $batchStart = $start;
         do {
-            $result = $this->list($pos, $this->defaultLength);
+            $batchEnd = $batchStart + $this->defaultLength - 1;
+            if ($end !== null && $batchEnd > $end) {
+                $batchEnd = $end;
+            }
+
+            $result = $this->list($batchStart, $batchEnd - $batchStart + 1);
             if ($end === null) {
                 $end = $result->getTotal();
             }
+
             foreach ($result->asArray() as $user) {
                 $users[] = $user;
-                $pos++;
-                if ($pos >= $end) {
-                    break;
-                }
             }
-        } while ($pos < $end);
+
+            $batchStart += count($result);
+        } while ($batchStart < $end);
+
+        if ($this->debug) {
+            echo "DEBUG: [listManyArray] End" . PHP_EOL;
+        }
+
         return $users;
     }
 
     public function listManyAsync(int $start = 0, int $end = null): Generator
     {
-        $pos = $start;
-        $process = $this->listAsync($pos, $this->defaultLength);
+        $batchStart = $start;
+        $batchEnd = $batchStart + $this->defaultLength - 1;
+        if ($end !== null && $batchEnd > $end) {
+            $batchEnd = $end;
+        }
+
+        $process = $this->listAsync($batchStart, $batchEnd - $batchStart + 1);
         do {
             $process->wait();
-            $result = $this->toCollection($process);
+            $result = $this->getCollection($process);
             if ($end === null) {
                 $end = $result->getTotal();
             }
 
-            if (($pos + count($result)) < $end) {
-                $process = $this->listAsync($pos + count($result), $this->defaultLength);
+            $batchStart += count($result);
+            $batchEnd = $batchStart + $this->defaultLength - 1;
+            if ($end !== null && $batchEnd > $end) {
+                $batchEnd = $end;
+            }
+    
+            if ($batchStart < $end) {
+                $process = $this->listAsync($batchStart, $batchEnd - $batchStart + 1);
             }
 
-            foreach ($result->asGenerator() as $user) {
-                yield $user;
-                $pos++;
-                if ($pos >= $end) {
-                    break;
-                }
-            }
-        } while ($pos < $end);
+            yield from $result->asGenerator();
+        } while ($batchStart < $end);
     }
 
     public function listManyAsyncArray(int $start = 0, int $end = null): array
     {
         $users = [];
 
-        $pos = $start;
-        $process = $this->listAsync($pos, $this->defaultLength);
+        $batchStart = $start;
+        $batchEnd = $batchStart + $this->defaultLength - 1;
+        if ($end !== null && $batchEnd > $end) {
+            $batchEnd = $end;
+        }
+
+        $process = $this->listAsync($batchStart, $batchEnd - $batchStart + 1);
         do {
             $process->wait();
-            $result = $this->toCollection($process);
+            $result = $this->getCollection($process);
             if ($end === null) {
                 $end = $result->getTotal();
             }
 
-            if (($pos + count($result)) < $end) {
-                $process = $this->listAsync($pos + count($result), $this->defaultLength);
+            $batchStart += count($result);
+            $batchEnd = $batchStart + $this->defaultLength - 1;
+            if ($end !== null && $batchEnd > $end) {
+                $batchEnd = $end;
+            }
+    
+            if ($batchStart < $end) {
+                $process = $this->listAsync($batchStart, $batchEnd - $batchStart + 1);
             }
 
-            foreach ($result->asGenerator() as $user) {
+            foreach ($result->asArray() as $user) {
                 $users[] = $user;
-                $pos++;
-                if ($pos >= $end) {
-                    break;
-                }
             }
-        } while ($pos < $end);
+        } while ($batchStart < $end);
 
         return $users;
     }

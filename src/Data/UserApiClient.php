@@ -102,6 +102,36 @@ class UserApiClient
         }
     }
 
+    public function listManyIndexed(int $start = 0, int $end = null): Generator
+    {
+        if ($this->debug) {
+            echo "DEBUG: [listManyIndexed] Start" . PHP_EOL;
+        }
+
+        $batchStart = $start;
+        do {
+            $batchEnd = $batchStart + $this->defaultLength - 1;
+            if ($end !== null && $batchEnd > $end) {
+                $batchEnd = $end;
+            }
+
+            $result = $this->list($batchStart, $batchEnd - $batchStart + 1);
+            if ($end === null) {
+                $end = $result->getTotal();
+            }
+
+            foreach ($result->asGenerator() as $user) {
+                yield $user;
+            }
+
+            $batchStart += count($result);
+        } while ($batchStart < $end);
+
+        if ($this->debug) {
+            echo "DEBUG: [listManyIndexed] End" . PHP_EOL;
+        }
+    }
+
     public function listManyArray(int $start = 0, int $end = null): array
     {
         if ($this->debug) {

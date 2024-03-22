@@ -2,13 +2,14 @@
 
 namespace SonOfHarris\Meetup\Generators\Tests\Data;
 
+use Generator;
 use SonOfHarris\Meetup\Generators\Model\User;
 
 class MapImportBench
 {
     use FromUserData;
 
-    private function yieldTweak($source)
+    private function yieldTweak(iterable $source): Generator
     {
         $year = date('Y');
         foreach ($source as $row) {
@@ -17,14 +18,14 @@ class MapImportBench
         }
     }
 
-    private function yieldUser($source)
+    private function yieldUser(iterable $source): Generator
     {
         foreach ($source as $row) {
             yield User::fromData($row);
         }
     }
 
-    private function mapTweak($source)
+    private function mapTweak(array $source): array
     {
         $year = date('Y');
         return array_map(
@@ -36,7 +37,7 @@ class MapImportBench
         );
     }
 
-    private function mapUser($source)
+    private function mapUser(array $source): array
     {
         return array_map(
             function ($row) {
@@ -50,7 +51,7 @@ class MapImportBench
      * @Revs(10)
      * @Iterations(3)
      */
-    public function benchGeneratorChain()
+    public function benchGeneratorChain(): void
     {        
         $users = $this->yieldUser(
             $this->yieldTweak(

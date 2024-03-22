@@ -10,6 +10,8 @@ class UserDataSource implements Countable
 {
     private bool $debug = false;
 
+    private bool $lateClose = false;
+
     public function __construct(private $file)
     {
         if (!file_exists($file)) {
@@ -20,6 +22,11 @@ class UserDataSource implements Countable
     public function setDebug(bool $debug): void
     {
         $this->debug = $debug;
+    }
+
+    public function setLateClose(bool $enabled): void
+    {
+        $this->lateClose = $enabled;
     }
 
     public function count(): int
@@ -65,11 +72,21 @@ class UserDataSource implements Countable
                 }
             }
         } finally {
+            if (!$this->lateClose) {
+                if ($this->debug) {
+                    echo "DEBUG: Closing ";
+                    var_dump($fp);
+                }
+                fclose($fp);
+            }
+        }
+
+        if ($this->lateClose) {
             if ($this->debug) {
                 echo "DEBUG: Closing ";
                 var_dump($fp);
             }
             fclose($fp);
         }
-    }
+}
 }

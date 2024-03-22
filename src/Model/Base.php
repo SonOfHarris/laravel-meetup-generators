@@ -11,7 +11,7 @@ abstract class Base
      * 
      * @return static
      */
-    public static function fromData(array $array)
+    public static function fromData(array $array): static
     {
         $obj = new static();
         foreach ($array as $k => $v) {

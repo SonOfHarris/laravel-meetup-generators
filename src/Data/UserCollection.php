@@ -27,6 +27,9 @@ class UserCollection implements Countable
         return $this->result['next'];
     }
 
+    /**
+     * @return Generator|User[]
+     */
     public function asGenerator(): Generator
     {
         foreach ($this->result['data'] as $row) {
@@ -34,6 +37,9 @@ class UserCollection implements Countable
         }
     }
 
+    /**
+     * @return User[]
+     */
     public function asArray(): array
     {
         return array_map(

@@ -2,6 +2,8 @@
 
 Code examples shown during the Laravel Meetup about Generators.
 
+[View the presentation](Presentation.pdf)
+
 ## Installation
 
 Load dependencies via Composer:
